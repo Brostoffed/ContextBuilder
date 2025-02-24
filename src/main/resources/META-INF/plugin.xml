@@ -6,7 +6,15 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Register a notification group for context notifications -->
-        <notificationGroup id="Context Builder" displayType="BALLOON"/>
+        <notificationGroup
+                id="Context Builder"
+                displayType="BALLOON"/>
+
+        <!-- Register the settings page under Tools -->
+        <applicationConfigurable
+                instance="com.brostoffed.contextbuilder.ContextBuilderSettingsConfigurable"
+                displayName="Context Builder Settings"
+                id="com.brostoffed.contextbuilder.settings"/>
     </extensions>
 
     <actions>
@@ -15,7 +23,9 @@
                 class="com.brostoffed.contextbuilder.GenerateContextAction"
                 text="Generate Context"
                 description="Generates a markdown context from selected files and shows history">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <add-to-group
+                    group-id="ProjectViewPopupMenu"
+                    anchor="last"/>
         </action>
     </actions>
 </idea-plugin>

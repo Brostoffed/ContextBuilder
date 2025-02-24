@@ -79,6 +79,14 @@ class GenerateContextAction : AnAction("Generate Context") {
                 processFileRecursively(child, builder, projectBasePath, fileListHistory)
             }
         } else {
+            // Check against the excluded file types
+            val settings = ContextHistoryPersistentState.getInstance().state
+            val fileTypeName = file.fileType.name
+            if (settings.excludedFiletypes.any { it.equals(fileTypeName, ignoreCase = true) }) {
+                // Skip processing for this file type
+                return
+            }
+
             val fullPath = file.path
             val relativePath = if (projectBasePath.isNotEmpty() && fullPath.startsWith(projectBasePath))
                 fullPath.substring(projectBasePath.length + 1)
