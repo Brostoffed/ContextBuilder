@@ -114,7 +114,3 @@ Contributions are welcome! Please fork the repository and create a pull request 
 ## License
 
 [MIT License](LICENSE)
-
----
-
-This README provides an overview of the plugin's purpose, features, installation instructions, usage details, project structure, and build instructions. Feel free to adjust the text to match your specific requirements and repository details.
