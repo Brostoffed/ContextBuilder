@@ -168,14 +168,11 @@ class ContextHistoryToolWindowPanel(private val project: Project) : JBPanel<JBPa
 
                         // Create a new entry with default 'timestamp' but also a creation time
                         val newEntry = HistoryEntryBean(
-                            timestamp = now,
-                            filePaths = filePaths,
-                            createdAt = System.currentTimeMillis()
+                            timestamp = now, filePaths = filePaths, createdAt = System.currentTimeMillis()
                         )
                         ContextHistoryPersistentState.getInstance().state.entries.add(newEntry)
                         loadHistory()
-                        NotificationGroupManager.getInstance()
-                            .getNotificationGroup("Context Builder")
+                        NotificationGroupManager.getInstance().getNotificationGroup("Context Builder")
                             .createNotification("New history entry added from drop", NotificationType.INFORMATION)
                             .notify(project)
                     }
@@ -281,8 +278,7 @@ class ContextHistoryToolWindowPanel(private val project: Project) : JBPanel<JBPa
             copyToClipboard(md)
             val tokens = countTokens(md)
             tokenCountLabel.text = "Token count: $tokens"
-            NotificationGroupManager.getInstance()
-                .getNotificationGroup("Context Builder")
+            NotificationGroupManager.getInstance().getNotificationGroup("Context Builder")
                 .createNotification("Markdown copied to clipboard. Token count: $tokens", NotificationType.INFORMATION)
                 .notify(project)
             previewArea.text = md
@@ -334,9 +330,10 @@ class ContextHistoryToolWindowPanel(private val project: Project) : JBPanel<JBPa
         // Filter by the current search text
         val query = historySearchField.text
         val filtered = sorted.filter { entry ->
-            entry.customName.contains(query, ignoreCase = true)
-                    || entry.timestamp.contains(query, ignoreCase = true)
-                    || entry.filePaths.any { it.contains(query, ignoreCase = true) }
+            entry.customName.contains(query, ignoreCase = true) || entry.timestamp.contains(
+                query,
+                ignoreCase = true
+            ) || entry.filePaths.any { it.contains(query, ignoreCase = true) }
         }
 
         filtered.forEach { historyListModel.addElement(it) }
@@ -463,9 +460,7 @@ class ContextHistoryToolWindowPanel(private val project: Project) : JBPanel<JBPa
                     "Error reading file: ${ex.message}"
                 }
                 sb.append(
-                    template
-                        .replace("{path}", relPath)
-                        .replace("{filetype}", fileTypeLanguage)
+                    template.replace("{path}", relPath).replace("{filetype}", fileTypeLanguage)
                         .replace("{content}", content)
                 ).append("\n\n")
             }
@@ -480,8 +475,7 @@ class ContextHistoryToolWindowPanel(private val project: Project) : JBPanel<JBPa
 
     private fun countTokens(text: String): Int {
         val registry = Encodings.newDefaultEncodingRegistry()
-        val encoding = registry.getEncodingForModel("gpt_3.5-turbo")
-            .orElseGet {
+        val encoding = registry.getEncodingForModel("gpt_3.5-turbo").orElseGet {
                 registry.getEncoding("cl100k_base")
                     .orElseThrow { IllegalArgumentException("No encoding found for cl100k_base") }
             }
