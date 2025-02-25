@@ -2,6 +2,9 @@
 
 ContextBuilder is an IntelliJ IDEA plugin that helps you generate and manage markdown contexts from selected project files. It provides a tool window with a history view, drag-and-drop support, and file filtering features—all designed to streamline your workflow for building context for AI prompts, documentation, or code reviews.
 
+## Visual
+![ContextBuilder Tool Window](images/contextbuilder-toolwindow.png)
+
 ## Features
 
 - **Generate Context from Files:**  
