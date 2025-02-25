@@ -18,6 +18,9 @@
         - History refreshes automatically when generating context.
     </change-notes>
 
+    <vendor url="https://brostoff.me">Brostoffed</vendor>
+
+
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
