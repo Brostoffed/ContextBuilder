@@ -1,5 +1,6 @@
 package com.brostoffed.contextbuilder
 
+import com.brostoffed.contextbuilder.toolwindow.ContextHistoryToolWindowPanel
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionUpdateThread
@@ -62,7 +63,9 @@ class GenerateContextAction : AnAction("Generate Context") {
                     val now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                     val entry = HistoryEntryBean(timestamp = now, filePaths = fileListHistory)
                     ContextHistoryPersistentState.getInstance().state.entries.add(entry)
-                    ContextHistoryDialog(project).show()
+
+                    // Refresh the tool window history (if open)
+                    ContextHistoryToolWindowPanel.instance?.loadHistory()
                 }
             }
         })
@@ -83,7 +86,6 @@ class GenerateContextAction : AnAction("Generate Context") {
             val settings = ContextHistoryPersistentState.getInstance().state
             val fileTypeName = file.fileType.name
             if (settings.excludedFiletypes.any { it.equals(fileTypeName, ignoreCase = true) }) {
-                // Skip processing for this file type
                 return
             }
 
@@ -96,7 +98,7 @@ class GenerateContextAction : AnAction("Generate Context") {
             fileListHistory.add(relativePath)
 
             val fileTypeLanguage = file.fileType.name.lowercase()
-            val template = ContextHistoryPersistentState.getInstance().state.markdownTemplate
+            val template = settings.markdownTemplate
             val content = try {
                 String(file.contentsToByteArray(), file.charset)
             } catch (ex: Exception) {
@@ -118,7 +120,6 @@ class GenerateContextAction : AnAction("Generate Context") {
 
     /**
      * Counts tokens using jtokkit’s BPE encoding.
-     * First attempts to get encoding for "gpt_3.5-turbo" and falls back to "cl100k_base" if not found.
      */
     private fun countTokens(text: String): Int {
         val registry = Encodings.newDefaultEncodingRegistry()

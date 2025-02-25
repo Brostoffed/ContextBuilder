@@ -1,11 +1,27 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<!-- Plugin Configuration File.
+     Reference: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
+
+    <!-- Plugin Identity -->
     <id>com.Brostoffed.ContextBuilder</id>
     <name>ContextBuilder</name>
+    <version>1.0.0</version>
+
+    <description>
+        ContextBuilder is a plugin that lets you combine and manage code files for AI prompts or other tooling.
+        Features include a tool window with the same UI as the old ContextHistoryDialog, filetype exclusions, and a history manager.
+    </description>
+
+    <change-notes>
+        - Removed modal dialog after generation; now uses a docked tool window.
+        - Integrated drag-and-drop support in the tool window.
+        - History refreshes automatically when generating context.
+    </change-notes>
+
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <!-- Register a notification group for context notifications -->
+        <!-- Notification group for balloon messages -->
         <notificationGroup
                 id="Context Builder"
                 displayType="BALLOON"/>
@@ -15,17 +31,25 @@
                 instance="com.brostoffed.contextbuilder.ContextBuilderSettingsConfigurable"
                 displayName="Context Builder Settings"
                 id="com.brostoffed.contextbuilder.settings"/>
+
+        <!-- Register the tool window on the right side -->
+        <toolWindow
+                id="Context Builder"
+                anchor="right"
+                factoryClass="com.brostoffed.contextbuilder.toolwindow.ContextBuilderToolWindowFactory"/>
     </extensions>
 
     <actions>
+        <!-- Context menu action for generating context from selected files -->
         <action
                 id="com.boffin.contextbuilder.GenerateContextAction"
                 class="com.brostoffed.contextbuilder.GenerateContextAction"
                 text="Generate Context"
-                description="Generates a markdown context from selected files and shows history">
+                description="Generates a markdown context from selected files and updates history">
             <add-to-group
                     group-id="ProjectViewPopupMenu"
                     anchor="last"/>
         </action>
     </actions>
+
 </idea-plugin>
