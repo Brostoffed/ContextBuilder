@@ -3,12 +3,13 @@
 ContextBuilder is an IntelliJ IDEA plugin that helps you generate and manage markdown contexts from selected project files. It provides a tool window with a history view, drag-and-drop support, and file filtering features—all designed to streamline your workflow for building context for AI prompts, documentation, or code reviews.
 
 ## Visual
+
 ![ContextBuilder Tool Window](images/contextbuilder-toolwindow.png)
 
 ## Features
 
 - **Generate Context from Files:**  
-  Generate a combined markdown context from selected files via a right-click action in the Project view.
+  Right-click in the Project view and select one or more discrete files, folders, or any combination of both. Then choose **Generate Context** to have the plugin recursively merge their contents into a single markdown context, copy it to the clipboard, and add a new history entry.
 
 - **Tool Window Interface:**  
   A docked tool window replicates the old modal dialog interface. It displays a history of generated contexts, a file tree view with preview, and a token count for the generated markdown.
@@ -25,7 +26,7 @@ ContextBuilder is an IntelliJ IDEA plugin that helps you generate and manage mar
       Use a search field to filter history items and file tree contents.
 
 - **Persistent State & Settings:**  
-  The plugin persists your context history, file type exclusions, and markdown template across sessions. Adjust settings via the IntelliJ Settings/Preferences under Tools.
+  Your context history, file type exclusions, and markdown template persist across sessions. Adjust settings via the IntelliJ Settings/Preferences under Tools.
 
 ## Installation
 
@@ -47,10 +48,12 @@ ContextBuilder is an IntelliJ IDEA plugin that helps you generate and manage mar
 ## Usage
 
 ### Generating Context
+
 - **Right-click Action:**  
   In the Project view, right-click on one or more files/folders and select **Generate Context**. This action generates a markdown context, copies it to the clipboard, and adds a new history entry.
 
 ### Using the Tool Window
+
 - **View History:**  
   Open the **Context Builder** tool window (by default docked on the right side of the IDE) to view all generated context history.
 - **Drag-and-Drop:**  
