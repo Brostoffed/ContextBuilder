@@ -9,7 +9,8 @@
 
     <description>
         ContextBuilder is a plugin that lets you combine and manage code files for AI prompts or other tooling.
-        Features include a tool window with the same UI as the old ContextHistoryDialog, filetype exclusions, and a history manager.
+        Features include a tool window with the same UI as the old ContextHistoryDialog, filetype exclusions, and a
+        history manager.
     </description>
 
     <change-notes>
@@ -52,6 +53,22 @@
             <add-to-group
                     group-id="ProjectViewPopupMenu"
                     anchor="last"/>
+        </action>
+
+        <!-- Exclude from Context -->
+        <action id="com.brostoffed.contextbuilder.actions.ExcludeFromContextAction"
+                class="com.brostoffed.contextbuilder.actions.ExcludeFromContextAction"
+                text="Exclude from Context"
+                description="Exclude this file or folder from context generation">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+        </action>
+
+        <!-- Always Include in Context -->
+        <action id="com.brostoffed.contextbuilder.actions.AlwaysIncludeContextAction"
+                class="com.brostoffed.contextbuilder.actions.AlwaysIncludeContextAction"
+                text="Always Include in Context"
+                description="Always include this file or folder, even if excluded">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
         </action>
     </actions>
 
