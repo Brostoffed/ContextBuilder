@@ -1,5 +1,6 @@
 package com.brostoffed.contextbuilder.toolwindow
 
+import com.brostoffed.contextbuilder.ContextUtils
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.fileChooser.FileChooser
@@ -67,10 +68,25 @@ class FileStructurePanel(private val project: Project) : JPanel(BorderLayout()) 
 
         // Generate context → balloon notification
         generateButton.addActionListener {
-            val filePaths = getAllFilePaths(rootNode)
-            val context = generateContextForPaths(filePaths)
+            // Instead of a naive approach, unify with your plugin logic:
+            val selectedPaths = getAllFilePaths(rootNode)
 
-            // Show a balloon with a snippet of the context.
+            // If you truly want to respect excludes/includes, you must do something akin to:
+            val projectBasePath = project.basePath ?: ""
+
+            // Convert each user-selected path to a VirtualFile, then collect them with the same utility method:
+            val fs = com.intellij.openapi.vfs.LocalFileSystem.getInstance()
+            val aggregatedPaths = mutableListOf<String>()
+            for (path in selectedPaths) {
+                val vf = fs.findFileByPath("$projectBasePath/$path") ?: continue
+                // This call checks alwaysIncludePaths, excludedDirectories, etc.
+                ContextUtils.collectPathsRespectingSettings(vf, projectBasePath, aggregatedPaths)
+            }
+
+            // Now build the final text:
+            val context = ContextUtils.buildContextContent(aggregatedPaths, projectBasePath)
+
+            // Show balloon snippet
             val snippet = if (context.length > 300) context.take(300) + "..." else context
             NotificationGroupManager.getInstance()
                 .getNotificationGroup("Context Builder")
@@ -78,8 +94,7 @@ class FileStructurePanel(private val project: Project) : JPanel(BorderLayout()) 
                     "Generated Context",
                     snippet,
                     NotificationType.INFORMATION
-                )
-                .notify(project)
+                ).notify(project)
         }
     }
 
@@ -93,11 +108,16 @@ class FileStructurePanel(private val project: Project) : JPanel(BorderLayout()) 
                     dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE)
                     val transferable = dtde.transferable
                     if (transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-                        val droppedFiles = transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<File>
-                        droppedFiles.forEach { file ->
-                            addFilePath(file.absolutePath)
+                        val data = transferable.getTransferData(DataFlavor.javaFileListFlavor)
+                        if (data is List<*>) {
+                            data.forEach { item ->
+                                if (item is File) {
+                                    addFilePath(item.absolutePath)
+                                }
+                            }
                         }
                     }
+
                     dtde.dropComplete(true)
                 } catch (ex: Exception) {
                     ex.printStackTrace()
