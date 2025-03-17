@@ -5,7 +5,7 @@
     <!-- Plugin Identity -->
     <id>com.Brostoffed.ContextBuilder</id>
     <name>ContextBuilder</name>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
 
     <description>
         ContextBuilder is a plugin that lets you combine and manage code files for AI prompts or other tooling.
