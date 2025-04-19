@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.Brostoffed"
-version = "1.0.2-SNAPSHOT"
+version = "1.0.3-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -31,8 +31,8 @@ tasks {
     }
 
     patchPluginXml {
-        sinceBuild.set("241")
-        untilBuild.set("243.*")
+        sinceBuild.set("251")
+        untilBuild.set("251.*")
     }
 
     signPlugin {
