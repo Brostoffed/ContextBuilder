@@ -474,11 +474,16 @@ class ContextHistoryToolWindowPanel(private val project: Project) : JBPanel<JBPa
     }
 
     private fun countTokens(text: String): Int {
-        val registry = Encodings.newDefaultEncodingRegistry()
-        val encoding = registry.getEncodingForModel("gpt_3.5-turbo").orElseGet {
+        return try {
+            val registry = Encodings.newDefaultEncodingRegistry()
+            val encoding = registry.getEncodingForModel("gpt_3.5-turbo").orElseGet {
                 registry.getEncoding("cl100k_base")
                     .orElseThrow { IllegalArgumentException("No encoding found for cl100k_base") }
             }
-        return encoding.countTokens(text)
+            return encoding.countTokens(text)
+        } catch (t: Throwable) {
+            // Fallback to a rough estimate if jtokkit is unavailable at runtime.
+            (text.length / 4).coerceAtLeast(0)
+        }
     }
 }

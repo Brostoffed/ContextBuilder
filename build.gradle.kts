@@ -77,3 +77,4 @@ val prepareCoroutinesAgent by tasks.registering(Copy::class) {
 tasks.named("runIde").configure { dependsOn(prepareCoroutinesAgent) }
 tasks.named("processResources").configure { dependsOn(prepareCoroutinesAgent) }
 tasks.named("verifyPluginProjectConfiguration").configure { dependsOn(prepareCoroutinesAgent) }
+tasks.named("processTestResources").configure { dependsOn(prepareCoroutinesAgent) }

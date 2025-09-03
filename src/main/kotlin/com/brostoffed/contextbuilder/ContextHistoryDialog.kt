@@ -388,12 +388,17 @@ class ContextHistoryDialog(private val project: Project) : DialogWrapper(project
      * First attempts to get encoding for "gpt_3.5-turbo" and falls back to "cl100k_base" if not found.
      */
     private fun countTokens(text: String): Int {
-        val registry = Encodings.newDefaultEncodingRegistry()
-        val encoding = registry.getEncodingForModel("gpt_3.5-turbo")
-            .orElseGet {
-                registry.getEncoding("cl100k_base")
-                    .orElseThrow { IllegalArgumentException("No encoding found for cl100k_base") }
-            }
-        return encoding.countTokens(text)
+        return try {
+            val registry = Encodings.newDefaultEncodingRegistry()
+            val encoding = registry.getEncodingForModel("gpt_3.5-turbo")
+                .orElseGet {
+                    registry.getEncoding("cl100k_base")
+                        .orElseThrow { IllegalArgumentException("No encoding found for cl100k_base") }
+                }
+            encoding.countTokens(text)
+        } catch (t: Throwable) {
+            // Fallback to a rough estimate if jtokkit is unavailable at runtime.
+            (text.length / 4).coerceAtLeast(0)
+        }
     }
 }
