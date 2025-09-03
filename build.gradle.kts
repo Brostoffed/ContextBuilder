@@ -1,7 +1,7 @@
 plugins {
     id("java")
-    id("org.jetbrains.kotlin.jvm") version "1.9.25"
-    id("org.jetbrains.intellij") version "1.17.4"
+    id("org.jetbrains.kotlin.jvm") version "2.1.0"
+    id("org.jetbrains.intellij.platform") version "2.2.1"
 }
 
 group = "com.Brostoffed"
@@ -9,43 +9,71 @@ version = "1.0.3-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    intellijPlatform.defaultRepositories()
 }
 
-// Configure Gradle IntelliJ Plugin
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    version.set("2024.1.7")
-    type.set("IC")
+// IntelliJ Platform configuration (2.x)
+intellijPlatform {
+    pluginConfiguration {
+        ideaVersion {
+            sinceBuild.set("252")
+            untilBuild.set("252.*")
+        }
+    }
+}
 
-    plugins.set(listOf(/* Plugin Dependencies */))
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
 }
 
 tasks {
-    // Set the JVM compatibility versions
-    withType<JavaCompile> {
-        sourceCompatibility = "17"
-        targetCompatibility = "17"
+    // Disable searchable options generation (flaky headless)
+    buildSearchableOptions {
+        enabled = false
     }
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
-
-    patchPluginXml {
-        sinceBuild.set("251")
-        untilBuild.set("251.*")
-    }
-
-    signPlugin {
-        certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
-        privateKey.set(System.getenv("PRIVATE_KEY"))
-        password.set(System.getenv("PRIVATE_KEY_PASSWORD"))
-    }
-
-    publishPlugin {
-        token.set(System.getenv("PUBLISH_TOKEN"))
+    // Work around missing coroutines debug agent in some platform builds
+    runIde {
+        jvmArgs("-Dkotlinx.coroutines.debug=off")
     }
 }
 
 dependencies {
+    // Prefer a local IDE if available, else fall back to 2025.2 platform
+    intellijPlatform {
+        val envIde = System.getenv("IDEA_LOCAL_PATH")
+        val isMac = System.getProperty("os.name").contains("Mac", ignoreCase = true)
+        val defaultMacCe = "/Applications/IntelliJ IDEA CE.app"
+        val autoLocalPath = when {
+            !envIde.isNullOrBlank() -> envIde
+            isMac && file(defaultMacCe).exists() -> defaultMacCe
+            else -> null
+        }
+        if (autoLocalPath != null) local(autoLocalPath) else intellijIdeaCommunity("2025.2")
+        bundledPlugins("com.intellij.java")
+    }
     implementation("com.knuddels:jtokkit:1.1.0")
 }
+
+// Provide a coroutines debug agent at the path some IDE builds expect
+configurations.register("coroutinesAgent")
+dependencies.add("coroutinesAgent", "org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.9.0")
+
+val prepareCoroutinesAgent by tasks.registering(Copy::class) {
+    val agent = configurations.named("coroutinesAgent").get().elements.map { it.first().asFile }
+    from(agent)
+    rename { "coroutines-javaagent.jar" }
+    into(layout.buildDirectory)
+}
+
+tasks.named("runIde").configure { dependsOn(prepareCoroutinesAgent) }
+tasks.named("processResources").configure { dependsOn(prepareCoroutinesAgent) }
+tasks.named("verifyPluginProjectConfiguration").configure { dependsOn(prepareCoroutinesAgent) }
