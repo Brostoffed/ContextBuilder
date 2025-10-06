@@ -31,17 +31,42 @@ object ContextUtils {
 
         val settings = ContextHistoryPersistentState.getInstance().state
 
+        // Normalize always-include paths to relative (UI may store absolute paths).
+        val alwaysIncludeRel = settings.alwaysIncludePaths.map { p ->
+            if (projectBasePath.isNotEmpty() && p.startsWith(projectBasePath)) {
+                p.substring(projectBasePath.length + 1)
+            } else p
+        }
         // Determine if this file/folder is explicitly marked as always include.
-        val alwaysInclude = settings.alwaysIncludePaths.contains(relativePath)
+        val alwaysInclude = alwaysIncludeRel.contains(relativePath)
+        // Normalize excluded directories to relative (user may store absolute paths in settings UI).
+        val excludedDirsRel = settings.excludedDirectories.map { dir ->
+            if (projectBasePath.isNotEmpty() && dir.startsWith(projectBasePath)) {
+                dir.substring(projectBasePath.length + 1)
+            } else dir
+        }
         // Check if the relative path falls under any excluded directory.
-        val isExcludedDir = settings.excludedDirectories.any { relativePath.startsWith(it) }
+        val isExcludedDir = excludedDirsRel.any { relativePath.startsWith(it) }
 
         // If not marked as always include and it's in an excluded directory, skip it.
         if (!alwaysInclude && isExcludedDir) return
 
         // For files (not directories), check if the file type is excluded (unless always included).
         if (!file.isDirectory && !alwaysInclude) {
-            val isExcludedType = settings.excludedFiletypes.any { it.equals(file.fileType.name, ignoreCase = true) }
+            // Support excluding by extension (e.g., "md", ".png") or by IDE file type name (e.g., "Markdown").
+            val normalizedExcludes = settings.excludedFiletypes
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .map { it.lowercase().removePrefix(".") }
+                .toSet()
+
+            val ext = file.extension?.lowercase()
+            val typeName = file.fileType.name.lowercase()
+
+            val isExcludedType =
+                (ext != null && normalizedExcludes.contains(ext)) ||
+                normalizedExcludes.contains(typeName)
+
             if (isExcludedType) return
         }
 

@@ -71,15 +71,16 @@ class FileStructurePanel(private val project: Project) : JPanel(BorderLayout()) 
             // Instead of a naive approach, unify with your plugin logic:
             val selectedPaths = getAllFilePaths(rootNode)
 
-            // If you truly want to respect excludes/includes, you must do something akin to:
             val projectBasePath = project.basePath ?: ""
 
-            // Convert each user-selected path to a VirtualFile, then collect them with the same utility method:
+            // Convert each selected absolute/relative path to a relative path, then collect.
             val fs = com.intellij.openapi.vfs.LocalFileSystem.getInstance()
             val aggregatedPaths = mutableListOf<String>()
             for (path in selectedPaths) {
-                val vf = fs.findFileByPath("$projectBasePath/$path") ?: continue
-                // This call checks alwaysIncludePaths, excludedDirectories, etc.
+                val rel = if (projectBasePath.isNotEmpty() && path.startsWith(projectBasePath)) {
+                    path.substring(projectBasePath.length + 1)
+                } else path
+                val vf = fs.findFileByPath("$projectBasePath/$rel") ?: continue
                 ContextUtils.collectPathsRespectingSettings(vf, projectBasePath, aggregatedPaths)
             }
 

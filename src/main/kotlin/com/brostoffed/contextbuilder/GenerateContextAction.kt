@@ -38,11 +38,15 @@ class GenerateContextAction : AnAction("Generate Context") {
         // Also add files from the "always include" list—even if they weren't selected.
         val settings = ContextHistoryPersistentState.getInstance().state
         val fs = LocalFileSystem.getInstance()
-        settings.alwaysIncludePaths.forEach { alwaysIncludeRelative ->
+        settings.alwaysIncludePaths.forEach { p ->
+            // Normalize to relative if stored as absolute
+            val rel = if (projectBasePath.isNotEmpty() && p.startsWith(projectBasePath)) {
+                p.substring(projectBasePath.length + 1)
+            } else p
             // Avoid duplicates.
-            if (!fileList.contains(alwaysIncludeRelative)) {
+            if (!fileList.contains(rel)) {
                 // Try to find the VirtualFile using the relative path.
-                val vf = fs.findFileByPath("$projectBasePath/$alwaysIncludeRelative")
+                val vf = fs.findFileByPath("$projectBasePath/$rel")
                 if (vf != null) {
                     ContextUtils.collectPathsRespectingSettings(vf, projectBasePath, fileList)
                 }

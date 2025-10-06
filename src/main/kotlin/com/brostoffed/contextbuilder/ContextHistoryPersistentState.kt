@@ -12,7 +12,7 @@ class ContextHistoryPersistentState : PersistentStateComponent<ContextHistoryPer
 
     data class State(
         var entries: MutableList<HistoryEntryBean> = mutableListOf(),
-        var markdownTemplate: String = "# {path}\n```{filetype}\n{content}\n```",
+        var markdownTemplate: String = "## {path}\n```{filetype}\n{content}\n```",
         var excludedFiletypes: MutableList<String> = mutableListOf(),
         var excludedDirectories: MutableList<String> = mutableListOf(),
         var alwaysIncludePaths: MutableList<String> = mutableListOf()
